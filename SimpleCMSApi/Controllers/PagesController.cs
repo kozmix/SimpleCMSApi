@@ -57,5 +57,39 @@ namespace SimpleCMSApi.Controllers
                 return Json("ok");
             }
         }
+
+        //GET api/pages/edit/id
+        [HttpGet("edit/{id}")]
+        public IActionResult Edit(int id)
+        {
+            Page page = _context.Pages.SingleOrDefault(x => x.ID == id);
+            if (page == null)
+            {
+                return Json("PageNotFound");
+            }
+
+            return Json(page);
+        }
+
+        // POST api/pages/edit/id
+        [HttpPut("edit/{id}")]
+        public IActionResult Edit(int id, [FromBody] Page page)
+        {
+            page.Slug = page.Title.Replace(" ", "-").ToLower();
+            page.HasSidebar = page.HasSidebar ?? "no";
+
+            var pg = _context.Pages.FirstOrDefault(x => x.ID != id && x.Slug == page.Slug);
+            if(pg != null) 
+            { 
+                return Json("pageExists");
+            }
+            else
+            {
+                _context.Update(page);
+                _context.SaveChanges();
+
+                return Json("ok");
+            }
+        }
     }
 }
